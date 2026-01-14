@@ -1,0 +1,12 @@
+# .htaccess untuk session security
+php_flag session.cookie_httponly on
+php_flag session.cookie_secure off
+php_value session.gc_maxlifetime 86400
+php_value session.cookie_lifetime 86400
+php_value session.use_strict_mode 1
+
+# Disable caching untuk halaman sensitive
+<FilesMatch "\.(php)$">
+    Header set Cache-Control "no-store, no-cache, must-revalidate, max-age=0"
+    Header set Pragma "no-cache"
+</FilesMatch>
