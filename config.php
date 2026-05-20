@@ -38,8 +38,10 @@ if (session_status() === PHP_SESSION_NONE) {
 
     ini_set('session.cookie_lifetime', '86400');
     ini_set('session.cookie_httponly', '1');
-    // Jangan set SameSite untuk localhost — bisa bikin CSRF gagal
-    if (!empty($_SERVER['HTTPS'])) {
+    // Deteksi HTTPS — support reverse proxy (HF Spaces uses X-Forwarded-Proto)
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+            || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+    if ($isHttps) {
         ini_set('session.cookie_secure', '1');
         ini_set('session.cookie_samesite', 'Lax');
     }

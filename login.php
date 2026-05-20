@@ -168,7 +168,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
                     logActivity($db, $user['id'], 'LOGIN', null, null, 'User login');
 
-                    $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+                    // Detect proper protocol — support reverse proxy (HF Spaces)
+                    $proto = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')
+                          || (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https')
+                          ? 'https' : 'http';
                     $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
                     header("Location: $proto://$host/dashboard.php");
                     exit();
