@@ -73,6 +73,7 @@ require __DIR__ . '/includes/layout.php';
             <div class="col-12 text-end">
                 <button type="submit" class="btn btn-primary"><i class="bi bi-filter me-1"></i> Filter</button>
                 <a href="laporan.php" class="btn btn-secondary">Reset</a>
+                <a href="export_pdf.php?<?= http_build_query(array_filter(['start_date'=>$start_date,'end_date'=>$end_date,'status'=>$statusFilter,'jabatan'=>$jabatanFilter,'agama'=>$agamaFilter])) ?>" target="_blank" class="btn btn-danger"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
                 <button type="button" onclick="window.print()" class="btn btn-success"><i class="bi bi-printer me-1"></i> Cetak</button>
             </div>
         </form>

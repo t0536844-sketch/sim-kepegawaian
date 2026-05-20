@@ -73,6 +73,9 @@ require __DIR__ . '/includes/layout.php';
             <div class="col-md-2">
                 <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search me-1"></i> Filter</button>
             </div>
+            <div class="col-md-2 text-end">
+                <a href="export_pdf.php?<?= http_build_query(array_filter(['search'=>$search,'status'=>$statusFilter])) ?>" target="_blank" class="btn btn-danger btn-sm w-100"><i class="bi bi-file-earmark-pdf me-1"></i> Export PDF</a>
+            </div>
         </form>
     </div>
 </div>
