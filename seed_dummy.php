@@ -8,11 +8,21 @@ $db = $database->getConnection();
 echo "<pre>";
 echo "=== Seed Data Dummy SIM Kepegawaian ===\n\n";
 
-// Add no_telepon column if not exists
-$columns = $db->query("PRAGMA table_info(pegawai)")->fetchAll(PDO::FETCH_COLUMN, 1);
-if (!in_array('no_telepon', $columns)) {
-    $db->exec("ALTER TABLE pegawai ADD COLUMN no_telepon TEXT");
-    echo "✅ Added column: no_telepon\n";
+// Ensure no_telepon column exists (handle both existing and new tables)
+try {
+    $columns = $db->query("PRAGMA table_info(pegawai)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    if (empty($columns)) {
+        echo "⚠️  Table 'pegawai' doesn't exist yet — triggering migration...\n";
+        $database = new Database();
+        $db = $database->getConnection();
+        $columns = $db->query("PRAGMA table_info(pegawai)")->fetchAll(PDO::FETCH_COLUMN, 1);
+    }
+    if (!in_array('no_telepon', $columns)) {
+        $db->exec("ALTER TABLE pegawai ADD COLUMN no_telepon TEXT");
+        echo "✅ Added column: no_telepon\n";
+    }
+} catch (Exception $e) {
+    echo "⚠️  Column check failed: " . $e->getMessage() . "\n";
 }
 
 // Create additional users if not exist
