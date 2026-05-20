@@ -128,10 +128,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $stmt = $db->prepare($query);
             $stmt->bindParam(':username', $username);
             $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($stmt->rowCount() > 0) {
-                $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
+            if ($user) {
                 // Verifikasi password dengan bcrypt
                 // Support backward: cek SHA256 lama kalau bcrypt gagal
                 $passwordValid = false;
