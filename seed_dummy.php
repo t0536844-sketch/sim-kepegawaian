@@ -8,6 +8,13 @@ $db = $database->getConnection();
 echo "<pre>";
 echo "=== Seed Data Dummy SIM Kepegawaian ===\n\n";
 
+// Add no_telepon column if not exists
+$columns = $db->query("PRAGMA table_info(pegawai)")->fetchAll(PDO::FETCH_COLUMN, 1);
+if (!in_array('no_telepon', $columns)) {
+    $db->exec("ALTER TABLE pegawai ADD COLUMN no_telepon TEXT");
+    echo "✅ Added column: no_telepon\n";
+}
+
 // Create additional users if not exist
 $users = [
     ['operator', 'operator', 'Operator User', 'operator'],
@@ -207,7 +214,7 @@ $stmt = $db->prepare($insertSql);
 $count = 0;
 
 foreach ($pegawai as $p) {
-    // Check duplicate NIP
+    // Skip existing NIP (only check if NIP is not empty)
     if (!empty($p['nip'])) {
         $check = $db->prepare("SELECT COUNT(*) FROM pegawai WHERE nip = ?");
         $check->execute([$p['nip']]);
@@ -215,13 +222,21 @@ foreach ($pegawai as $p) {
             echo "⏭️  Skip (NIP exists): {$p['nama_lengkap']}\n";
             continue;
         }
+    } else {
+        // For empty NIP, check by name
+        $check = $db->prepare("SELECT COUNT(*) FROM pegawai WHERE nama_lengkap = ?");
+        $check->execute([$p['nama_lengkap']]);
+        if ($check->fetchColumn() > 0) {
+            echo "⏭️  Skip (Name exists): {$p['nama_lengkap']}\n";
+            continue;
+        }
     }
 
     $stmt->execute([
         $p['nama_lengkap'], $p['tempat_lahir'], $p['tanggal_lahir'], $p['agama'],
-        $p['jenis_kelamin'], $p['nip'], $p['pangkat_golongan'], $p['pendidikan'],
+        $p['jenis_kelamin'], !empty($p['nip']) ? $p['nip'] : null, $p['pangkat_golongan'], $p['pendidikan'],
         $p['status_pernikahan'], $p['jabatan'], $p['status_kepegawaian'],
-        $p['masa_berlaku_str'], $p['masa_berlaku_sip'], $p['no_telepon']
+        !empty($p['masa_berlaku_str']) ? $p['masa_berlaku_str'] : null, !empty($p['masa_berlaku_sip']) ? $p['masa_berlaku_sip'] : null, $p['no_telepon']
     ]);
     $count++;
     echo "✅ Added: {$p['nama_lengkap']} ({$p['status_kepegawaian']} - {$p['jabatan']})\n";
